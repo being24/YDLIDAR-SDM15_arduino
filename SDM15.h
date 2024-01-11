@@ -1,32 +1,30 @@
-#ifndef SDM15_H
-#define SDM15_H
+// Copyright © 2023 Being24. MIT.
+#ifndef SDM15_H_
+#define SDM15_H_
 
 #include <Arduino.h>
 
-struct VersionInfo
-{
-    bool checksum_error;
-    int model;
-    int hardware_version;
-    int firmware_version_major;
-    int firmware_version_minor;
-    String serial_number;
+struct VersionInfo {
+  bool checksum_error;
+  int model;
+  int hardware_version;
+  int firmware_version_major;
+  int firmware_version_minor;
+  String serial_number;
 };
 
-struct TestResult
-{
-    bool checksum_error;
-    bool self_check_result;
-    byte self_check_error_code;
-    byte test_data[32];
+struct TestResult {
+  bool checksum_error;
+  bool self_check_result;
+  byte self_check_error_code;
+  byte test_data[32];
 };
 
-struct ScanData
-{
-    bool checksum_error;
-    int distance;
-    int intensity;
-    int disturb;
+struct ScanData {
+  bool checksum_error;
+  int distance;
+  int intensity;
+  int disturb;
 };
 
 const int PACKET_HED1 = 0xAA;
@@ -42,20 +40,29 @@ const int SET_FORMAT_OUTPUT_DATA = 0x67;
 const int RESTORE_FACTORY_SETTINGS = 0x68;
 const int NO_DATA = 0x00;
 
-class SDM15
-{
-public:
-    SDM15(HardwareSerial &serial) : _sensor_serial(serial) {}
-    VersionInfo ObtainVersionInfo();
-    TestResult SelfCheckTest();
-    bool StartScan();
-    bool StopScan();
-    ScanData GetScanData();
-
-private:
-    byte CalculateChecksum(byte *recv, int size);
-    void ClearBuffer();
-    HardwareSerial &_sensor_serial;
+enum Freq {
+  Freq_10Hz = 0x00,
+  Freq_100Hz = 0x01,
+  Freq_200Hz = 0x02,
+  Freq_500Hz = 0x03,
+  Freq_1000Hz = 0x04,
+  Freq_1800Hz = 0x05
 };
 
-#endif // SDM15_H
+class SDM15 {
+ public:
+  explicit SDM15(HardwareSerial &serial) : _sensor_serial(serial) {}
+  VersionInfo ObtainVersionInfo();
+  TestResult SelfCheckTest();
+  bool StartScan();
+  bool StopScan();
+  ScanData GetScanData();
+  bool SetOutputFrequency(Freq freq);
+
+ private:
+  byte CalculateChecksum(byte *recv, int size);
+  void ClearBuffer();
+  HardwareSerial &_sensor_serial;
+};
+
+#endif  // SDM15_H_
