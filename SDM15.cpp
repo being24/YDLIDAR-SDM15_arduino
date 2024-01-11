@@ -1,7 +1,7 @@
 // Copyright © 2023 Being24. MIT.
 #include "SDM15.h"
 
-ScanData data;
+ScanData sdm15_data;
 byte scan_recv[9];
 byte checksum = 0;
 
@@ -167,18 +167,18 @@ ScanData SDM15::GetScanData() {
 
   // check checksum
   if (checksum != scan_recv[8]) {
-    data.checksum_error = true;
-    return data;
+    sdm15_data.checksum_error = true;
+    return sdm15_data;
   }
 
-  data.checksum_error = false;
+  sdm15_data.checksum_error = false;
 
-  data.distance =
+  sdm15_data.distance =
       static_cast<int>(scan_recv[4]) + (static_cast<int>(scan_recv[5]) << 8);
-  data.intensity = static_cast<int>(scan_recv[6]);
-  data.disturb = static_cast<int>(scan_recv[7]);
+  sdm15_data.intensity = static_cast<int>(scan_recv[6]);
+  sdm15_data.disturb = static_cast<int>(scan_recv[7]);
 
-  return data;
+  return sdm15_data;
 }
 
 bool SDM15::SetOutputFrequency(Freq freq = Freq_100Hz) {
