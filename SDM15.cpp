@@ -48,7 +48,8 @@ VersionInfo SDM15::ObtainVersionInfo() {
 
   info.checksum_error = false;
 
-  // int型で取得
+
+  // int型で取得1
   info.model = static_cast<int>(recv[4]);
   info.hardware_version = recv[5];
   info.firmware_version_major = recv[6];
@@ -177,7 +178,7 @@ ScanData SDM15::GetScanData() {
       static_cast<int>(scan_recv[4]) + (static_cast<int>(scan_recv[5]) << 8);
   sdm15_data.intensity = static_cast<int>(scan_recv[6]);
   sdm15_data.disturb = static_cast<int>(scan_recv[7]);
-
+  
   return sdm15_data;
 }
 
@@ -198,6 +199,122 @@ bool SDM15::SetOutputFrequency(Freq freq = Freq_100Hz) {
 
   // receive byte data response : PACKET_HED1, PACKET_HED2,
   // SET_OUTPUT_FREQUENCY, data_length, freq, checksum
+  _sensor_serial.readBytes(recv, sizeof(recv));
+
+  // calculate checksum
+  byte recv_checksum = CalculateChecksum(recv, sizeof(recv));
+
+  // check checksum
+  if (recv_checksum != recv[5])
+    return false;
+  else
+    return true;
+}
+
+bool SDM15::SetFilter(FilterHex filter = On) {
+  // clear buffer
+  ClearBuffer();
+
+  // send cmd : PACKET_HED1, PACKET_HED2, SET_FILTER, data_length, filter,
+  // checksum
+  byte cmd[6] = {PACKET_HED1, PACKET_HED2, SET_FILTER,
+                 0x01,        filter,     NO_DATA};
+  byte send_checksum = CalculateChecksum(cmd, sizeof(cmd));
+  cmd[5] = send_checksum;
+  _sensor_serial.write(cmd, sizeof(cmd));
+  _sensor_serial.flush();
+
+  byte recv[6];
+
+  // receive byte data response : PACKET_HED1, PACKET_HED2,
+  // SET_FILTERING, data_length, filter, checksum
+  _sensor_serial.readBytes(recv, sizeof(recv));
+
+  // calculate checksum
+  byte recv_checksum = CalculateChecksum(recv, sizeof(recv));
+
+  // check checksum
+  if (recv_checksum != recv[5])
+    return false;
+  else
+    return true;
+}
+
+bool SDM15::SetBaudRate(BaudRateHex baud_rate = BAUD_460800) {
+  // clear buffer
+  ClearBuffer();
+
+  // send cmd : PACKET_HED1, PACKET_HED2, SET_SERIAL_BAUD, data_length, baud,
+  // checksum
+  byte cmd[6] = {PACKET_HED1, PACKET_HED2, SET_SERIAL_BAUD,
+                 0x01,        baud_rate,        NO_DATA};
+  byte send_checksum = CalculateChecksum(cmd, sizeof(cmd));
+  cmd[5] = send_checksum;
+  _sensor_serial.write(cmd, sizeof(cmd));
+  _sensor_serial.flush();
+
+  byte recv[6];
+
+  // receive byte data response : PACKET_HED1, PACKET_HED2,
+  // SET_SERIAL_BAUD, data_length, baud, checksum
+  _sensor_serial.readBytes(recv, sizeof(recv));
+
+  // calculate checksum
+  byte recv_checksum = CalculateChecksum(recv, sizeof(recv));
+
+  // check checksum
+  if (recv_checksum != recv[5])
+    return false;
+  else
+    return true;
+}
+
+bool SDM15::SetOutputDataFormat(OutputDataFormatHex data_format = Standard) {
+  // clear buffer
+  ClearBuffer();
+
+  // send cmd : PACKET_HED1, PACKET_HED2, SET_FORMAT_OUTPUT_DATA, data_length,
+  // data_format, checksum
+  byte cmd[6] = {PACKET_HED1, PACKET_HED2, SET_FORMAT_OUTPUT_DATA,
+                 0x01,        data_format,        NO_DATA};
+  byte send_checksum = CalculateChecksum(cmd, sizeof(cmd));
+  cmd[5] = send_checksum;
+  _sensor_serial.write(cmd, sizeof(cmd));
+  _sensor_serial.flush();
+
+  byte recv[6];
+
+  // receive byte data response : PACKET_HED1, PACKET_HED2,
+  // SET_FORMAT_OUTPUT_DATA, data_length, data_format, checksum
+  _sensor_serial.readBytes(recv, sizeof(recv));
+
+  // calculate checksum
+  byte recv_checksum = CalculateChecksum(recv, sizeof(recv));
+
+  // check checksum
+  if (recv_checksum != recv[5])
+    return false;
+  else
+    return true;
+}
+
+bool SDM15::RestoreFactorySettings() {
+  // clear buffer
+  ClearBuffer();
+
+  // send cmd : PACKET_HED1, PACKET_HED2, RESTORE_FACTORY_SETTINGS, NO_DATA,
+  // checksum
+  byte cmd[5] = {PACKET_HED1, PACKET_HED2, RESTORE_FACTORY_SETTINGS,
+                 0x00,        0x67};
+  byte send_checksum = CalculateChecksum(cmd, sizeof(cmd));
+  cmd[4] = send_checksum;
+  _sensor_serial.write(cmd, sizeof(cmd));
+  _sensor_serial.flush();
+
+  byte recv[5];
+
+  // receive byte data response : PACKET_HED1, PACKET_HED2,
+  // RESTORE_FACTORY_SETTINGS, NO_DATA, checksum
   _sensor_serial.readBytes(recv, sizeof(recv));
 
   // calculate checksum
