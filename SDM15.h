@@ -49,6 +49,24 @@ enum Freq {
   Freq_1800Hz = 0x05
 };
 
+enum FilterHex {
+  Off = 0x00,
+  On = 0x01
+};
+
+enum OutputDataFormatHex {
+  Standard = 0x00,
+  Pixhawk = 0x01
+};
+
+enum BaudRateHex {
+  BAUD_230400 = 0x00,
+  BAUD_460800 = 0x01,
+  BAUD_512000 = 0x02,
+  BAUD_921600 = 0x03,
+  BAUD_1500000 = 0x04
+};
+
 class SDM15 {
  public:
   explicit SDM15(HardwareSerial &serial) : _sensor_serial(serial) {}
@@ -58,6 +76,10 @@ class SDM15 {
   bool StopScan();
   ScanData GetScanData();
   bool SetOutputFrequency(Freq freq);
+  bool SetFilter(FilterHex filter);
+  bool SetBaudRate(BaudRateHex baud);
+  bool SetOutputDataFormat(OutputDataFormatHex format);
+  bool RestoreFactorySettings();
 
  private:
   byte CalculateChecksum(byte *recv, int size);
