@@ -49,7 +49,7 @@ VersionInfo SDM15::ObtainVersionInfo() {
   info.checksum_error = false;
 
 
-  // int型で取得1
+  // int型で取得
   info.model = static_cast<int>(recv[4]);
   info.hardware_version = recv[5];
   info.firmware_version_major = recv[6];
